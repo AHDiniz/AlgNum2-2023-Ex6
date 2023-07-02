@@ -48,13 +48,6 @@ function [x, y, t, u] = implicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
     A(N,N-1) = b_coeff(N);
     A(N,N-1) = d_coeff(N);
 
-    f = zeros(N);
-    for i = 1 : n
-        for j = 1 : m
-            f(i * n + j) = f_func(x(i), y(j));
-        end
-    end
-
     # Apply bound conditions:
 
     left_bound = [1 : n : (m - 1) * n + 1];
@@ -62,117 +55,125 @@ function [x, y, t, u] = implicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
     top_bound = [(m - 1) * n + 2 : N - 1];
     bottom_bound = [2 : (n - 1)];
 
-    for bound_index = 1 : numel(bound_conditions)
-
-        condition = bound_conditions(bound_index);
-        target_bound = [];
-
-        switch condition.bound
-            case "top"
-                switch condition.condition_type
-                    case "value"
-                        for i = top_bound
-                            A(i,:) = zeros(N);
-                            A(i,i) = 1;
-                            f(i) = g_func(x_value(i), y_value(i));
-                        end
-                    case "derivative"
-                        for i = top_bound
-                            A(i,i) += e_coeff(i);
-                            f(i) += e_coeff(i) * (h(2) / kappa) * h_func(x_value(i), y_value(i));
-                            A(i,i+n) = 0;
-                        end
-                    case "mixed"
-                        for i = top_bound
-                            A(i,i) += e_coeff(i) * (1 - (h(2) * condition.beta_value) / condition.alpha_value);
-                            f(i) -= e_coeff(i) * ((h(2) * q_func(x_value(i), y_value(i))) / condition.alpha_value) * q_func(x_value(i), y_value(i));
-                            A(i,i+n) = 0;
-                        end
-                    otherwise
-                        return;
-                end
-            case "right"
-                switch condition.condition_type
-                    case "value"
-                        for i = right_bound
-                            A(i,:) = zeros(N);
-                            A(i,i) = 1;
-                            f(i) = g_func(x_value(i), y_value(i));
-                        end
-                    case "derivative"
-                        for i = right_bound
-                            A(i,i) += c_coeff(i);
-                            f(i) += c_coeff(i) * (h(1) / kappa) * h_func(x_value(i), y_value(i));
-                            A(i,i+1) = 0;
-                        end
-                    case "mixed"
-                        for i = right_bound
-                            A(i,i) += c_coeff(i) * (1 - (h(1) * condition.beta_value) / condition.alpha_value);
-                            f(i) -= c_coeff(i) * ((h(1) * q_func(x_value(i), y_value(i))) / condition.alpha_value) * q_func(x_value(i), y_value(i));
-                            A(i,i+1) = 0;
-                        end
-                    otherwise
-                        return;
-                end
-            case "bottom"
-                switch condition.condition_type
-                    case "value"
-                        for i = bottom_bound
-                            A(i,:) = zeros(N);
-                            A(i,i) = 1;
-                            f(i) = g_func(x_value(i), y_value(i));
-                        end
-                    case "derivative"
-                        for i = bottom_bound
-                            A(i,i) += d_coeff(i);
-                            f(i) += d_coeff(i) * (h(2) / kappa) * h_func(x_value(i), y_value(i));
-                            A(i,i-n) = 0;
-                        end
-                    case "mixed"
-                        for i = bottom_bound
-                            A(i,i) += d_coeff(i) * (1 - (h(2) * condition.beta_value) / condition.alpha_value);
-                            f(i) -= d_coeff(i) * ((h(2) * q_func(x_value(i), y_value(i))) / condition.alpha_value) * q_func(x_value(i), y_value(i));
-                            A(i,i-n) = 0;
-                        end
-                    otherwise
-                        return;
-                end
-            case "left"
-                switch condition.condition_type
-                    case "value"
-                        for i = left_bound
-                            A(i,:) = zeros(N);
-                            A(i,i) = 1;
-                            f(i) = g_func(x_value(i), y_value(i));
-                        end
-                    case "derivative"
-                        for i = left_bound
-                            A(i,i) += b_coeff(i);
-                            f(i) += b_coeff(i) * (h(1) / kappa) * h_func(x_value(i), y_value(i));
-                            A(i,i+1) = 0;
-                        end
-                    case "mixed"
-                        for i = left_bound
-                            A(i,i) += b_coeff(i) * (1 - (h(1) * condition.beta_value) / condition.alpha_value);
-                            f(i) -= b_coeff(i) * ((h(1) * q_func(x_value(i), y_value(i))) / condition.alpha_value) * q_func(x_value(i), y_value(i));
-                            A(i,i+1) = 0;
-                        end
-                    otherwise
-                        return;
-                end
-            otherwise
-                return;
+    for t_i = t
+        
+        f = zeros(N);
+        for i = 1 : n
+            for j = 1 : m
+                f(i * n + j) = f_func(x(i), y(j), t_i);
+            end
         end
 
-    end
+        for bound_index = 1 : numel(bound_conditions)
 
-    # Apply initial conditions:
-    prev_u = zeros(N);
-    for condition = initial_conditions
-        prev_u(condition.y * n + condition.x) = condition.value;
-    end
+            condition = bound_conditions(bound_index);
+            target_bound = [];
 
-    for t_i = t
+            switch condition.bound
+                case "top"
+                    switch condition.condition_type
+                        case "value"
+                            for i = top_bound
+                                A(i,:) = zeros(N);
+                                A(i,i) = 1;
+                                f(i) = g_func(x_value(i), y_value(i), t_i);
+                            end
+                        case "derivative"
+                            for i = top_bound
+                                A(i,i) += e_coeff(i);
+                                f(i) += e_coeff(i) * (h(2) / kappa) * h_func(x_value(i), y_value(i), t_i);
+                                A(i,i+n) = 0;
+                            end
+                        case "mixed"
+                            for i = top_bound
+                                A(i,i) += e_coeff(i) * (1 - (h(2) * condition.beta_value) / condition.alpha_value);
+                                f(i) -= e_coeff(i) * ((h(2) * q_func(x_value(i), y_value(i), t_i)) / condition.alpha_value) * q_func(x_value(i), y_value(i), t_i);
+                                A(i,i+n) = 0;
+                            end
+                        otherwise
+                            return;
+                    end
+                case "right"
+                    switch condition.condition_type
+                        case "value"
+                            for i = right_bound
+                                A(i,:) = zeros(N);
+                                A(i,i) = 1;
+                                f(i) = g_func(x_value(i), y_value(i), t_i);
+                            end
+                        case "derivative"
+                            for i = right_bound
+                                A(i,i) += c_coeff(i);
+                                f(i) += c_coeff(i) * (h(1) / kappa) * h_func(x_value(i), y_value(i), t_i);
+                                A(i,i+1) = 0;
+                            end
+                        case "mixed"
+                            for i = right_bound
+                                A(i,i) += c_coeff(i) * (1 - (h(1) * condition.beta_value) / condition.alpha_value);
+                                f(i) -= c_coeff(i) * ((h(1) * q_func(x_value(i), y_value(i), t_i)) / condition.alpha_value) * q_func(x_value(i), y_value(i), t_i);
+                                A(i,i+1) = 0;
+                            end
+                        otherwise
+                            return;
+                    end
+                case "bottom"
+                    switch condition.condition_type
+                        case "value"
+                            for i = bottom_bound
+                                A(i,:) = zeros(N);
+                                A(i,i) = 1;
+                                f(i) = g_func(x_value(i), y_value(i), t_i);
+                            end
+                        case "derivative"
+                            for i = bottom_bound
+                                A(i,i) += d_coeff(i);
+                                f(i) += d_coeff(i) * (h(2) / kappa) * h_func(x_value(i), y_value(i), t_i);
+                                A(i,i-n) = 0;
+                            end
+                        case "mixed"
+                            for i = bottom_bound
+                                A(i,i) += d_coeff(i) * (1 - (h(2) * condition.beta_value) / condition.alpha_value);
+                                f(i) -= d_coeff(i) * ((h(2) * q_func(x_value(i), y_value(i), t_i)) / condition.alpha_value) * q_func(x_value(i), y_value(i), t_i);
+                                A(i,i-n) = 0;
+                            end
+                        otherwise
+                            return;
+                    end
+                case "left"
+                    switch condition.condition_type
+                        case "value"
+                            for i = left_bound
+                                A(i,:) = zeros(N);
+                                A(i,i) = 1;
+                                f(i) = g_func(x_value(i), y_value(i), t_i);
+                            end
+                        case "derivative"
+                            for i = left_bound
+                                A(i,i) += b_coeff(i);
+                                f(i) += b_coeff(i) * (h(1) / kappa) * h_func(x_value(i), y_value(i), t_i);
+                                A(i,i+1) = 0;
+                            end
+                        case "mixed"
+                            for i = left_bound
+                                A(i,i) += b_coeff(i) * (1 - (h(1) * condition.beta_value) / condition.alpha_value);
+                                f(i) -= b_coeff(i) * ((h(1) * q_func(x_value(i), y_value(i), t_i)) / condition.alpha_value) * q_func(x_value(i), y_value(i), t_i);
+                                A(i,i+1) = 0;
+                            end
+                        otherwise
+                            return;
+                    end
+                otherwise
+                    return;
+            end
+
+        end
+
+        # Apply initial conditions:
+        prev_u = zeros(N);
+        for condition = initial_conditions
+            prev_u(condition.y * n + condition.x) = condition.value;
+        end
+        
         u = gmres(A, prev_u + dt * f, 20, 1e-4, 100);
         prev_u = u;
     end
