@@ -59,8 +59,8 @@ function example1()
             end
         end
 
-        errors_explicit = cat(1, errors_explicit, [sqrt(sum(u_e - sol_values_ex) ^ 2) / sqrt(sum(sol_values_ex) ^ 2)]);
-        errors_implicit = cat(1, errors_implicit, [sqrt(sum(u_i - sol_values_im) ^ 2) / sqrt(sum(sol_values_im) ^ 2)]);
+        errors_explicit = cat(1, errors_explicit, [sqrt(sum((u_e - sol_values_ex) .^ 2)) / sqrt(sum(sol_values_ex .^ 2))]);
+        errors_implicit = cat(1, errors_implicit, [sqrt(sum((u_i - sol_values_im) .^ 2)) / sqrt(sum(sol_values_im .^ 2))]);
 
     end
 
