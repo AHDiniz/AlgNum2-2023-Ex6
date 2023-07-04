@@ -7,8 +7,8 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
     y = linspace(bounds.c, bounds.d, m);
     t = linspace(0, T, T / dt);
 
-    x_value = @(i) x(idivide(int32(i), int32(n), "fix") + 1);
-    y_value = @(i) x(mod(int32(i), int32(n)) + 1);
+    x_value = @(i) x(clamp(idivide(int32(i), int32(n), "fix") + 1, 1, n));
+    y_value = @(i) y(clamp(mod(int32(i), int32(n)) + 1, 1, m));
 
     a_coeff = arrayfun(@(i) dt * gamma_func(x_value(i), y_value(i)) + 2 * kappa * (1 / (h(1) * h(1)) + 1 / (h(2) * h(2))), [1 : N]);
     b_coeff = arrayfun(@(i) dt * (-kappa / (h(1) * h(1))) - (beta_func.x(x_value(i), y_value(i)) / (2 * h(1))), [1 : N]);
