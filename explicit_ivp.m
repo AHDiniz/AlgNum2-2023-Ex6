@@ -75,7 +75,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
                     switch condition.condition_type
                         case "value"
                             for i = top_bound
-                                A(i,:) = zeros(N);
+                                A(i,:) = zeros(N, 1);
                                 A(i,i) = 1;
                                 f(i) = g_func(x_value(i), y_value(i), t_i);
                             end
@@ -98,7 +98,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
                     switch condition.condition_type
                         case "value"
                             for i = right_bound
-                                A(i,:) = zeros(N);
+                                A(i,:) = zeros(N, 1);
                                 A(i,i) = 1;
                                 f(i) = g_func(x_value(i), y_value(i), t_i);
                             end
@@ -121,7 +121,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
                     switch condition.condition_type
                         case "value"
                             for i = bottom_bound
-                                A(i,:) = zeros(N);
+                                A(i,:) = zeros(N, 1);
                                 A(i,i) = 1;
                                 f(i) = g_func(x_value(i), y_value(i), t_i);
                             end
@@ -144,7 +144,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
                     switch condition.condition_type
                         case "value"
                             for i = left_bound
-                                A(i,:) = zeros(N);
+                                A(i,:) = zeros(N, 1);
                                 A(i,i) = 1;
                                 f(i) = g_func(x_value(i), y_value(i), t_i);
                             end
