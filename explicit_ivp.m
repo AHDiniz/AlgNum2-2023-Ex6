@@ -172,7 +172,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
         # Apply initial conditions:
         prev_u = zeros(N);
         for condition = initial_conditions
-            prev_u(condition.y * n + condition.x) = condition.value;
+            prev_u(clamp(condition.y * n + condition.x, 1, N)) = condition.value;
         end
 
         u = A * prev_u + dt * f;
