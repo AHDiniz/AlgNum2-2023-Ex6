@@ -48,8 +48,8 @@ function example1()
         [x_e, y_e, t_e, u_e] = explicit_ivp(bounds, T, n, n, dt_explicit, initial_conditions, bound_conditions, kappa, beta_func, gamma_func, g_func, h_func, q_func, f_func);
         [x_i, y_i, t_i, u_i] = implicit_ivp(bounds, T, n, n, dt_implicit, initial_conditions, bound_conditions, kappa, beta_func, gamma_func, g_func, h_func, q_func, f_func);
 
-        errors_explicit(i) += [sqrt(sum(u_e - sol_values_ex) ^ 2) / sqrt(sum(sol_values_ex) ^ 2)];
-        errors_implicit(i) += [sqrt(sum(u_i - sol_values_im) ^ 2) / sqrt(sum(sol_values_im) ^ 2)];
+        errors_explicit = [errors_explicit; sqrt(sum(u_e - sol_values_ex) ^ 2) / sqrt(sum(sol_values_ex) ^ 2)];
+        errors_implicit = [errors_implicit; sqrt(sum(u_i - sol_values_im) ^ 2) / sqrt(sum(sol_values_im) ^ 2)];
 
     end
 
