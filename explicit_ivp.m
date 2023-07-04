@@ -2,7 +2,7 @@ function [x, y, t, u] = explicit_ivp(bounds, T, m, n, dt, initial_conditions, bo
 
     N = n * m;
 
-    h = [(b - a) / (n - 1), (d - c) / (m - 1)];
+    h = [(bounds.b - bounds.a) / (n - 1), (bounds.d - bounds.c) / (m - 1)];
     x = linspace(bounds.a, bounds.b, n);
     y = linspace(bounds.c, bounds.d, m);
     t = linspace(0, T, T / dt);
