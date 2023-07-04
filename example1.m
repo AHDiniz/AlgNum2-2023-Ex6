@@ -48,14 +48,14 @@ function example1()
         sol_values_ex = [];
         for x = x_e
             for y = y_e
-                sol_values_ex = [sol_values_ex; u_e(clamp(int32(y) * n + int32(x), 1, n * n)) - solution(x, y, T)];
+                sol_values_ex = [sol_values_ex; solution(x, y, T)];
             end
         end
 
         sol_values_im = [];
         for x = x_i
             for y = y_i
-                sol_values_im = [sol_values_im; u_e(clamp(int32(y) * n + int32(x), 1, n * n)) - solution(x, y, T)];
+                sol_values_im = [sol_values_im; solution(x, y, T)];
             end
         end
 
