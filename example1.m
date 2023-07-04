@@ -45,8 +45,19 @@ function example1()
         [x_e, y_e, t_e, u_e] = explicit_ivp(bounds, T, n, n, dt_explicit, initial_conditions, bound_conditions, kappa, beta_func, gamma_func, g_func, h_func, q_func, f_func);
         [x_i, y_i, t_i, u_i] = implicit_ivp(bounds, T, n, n, dt_implicit, initial_conditions, bound_conditions, kappa, beta_func, gamma_func, g_func, h_func, q_func, f_func);
         
-        sol_values_im = arrayfun(solution, x_i, y_i, T);
-        sol_values_ex = arrayfun(solution, x_e, y_e, T);
+        sol_values_ex = [];
+        for x = x_e
+            for y = y_e
+                sol_values_ex = [sol_values_ex; u_e(y * n + x) - solution(x, y, T)];
+            end
+        end
+
+        sol_values_im = [];
+        for x = x_i
+            for y = y_i
+                sol_values_im = [sol_values_im; u_e(y * n + x) - solution(x, y, T)];
+            end
+        end
 
         errors_explicit = cat(1, errors_explicit, [sqrt(sum(u_e - sol_values_ex) ^ 2) / sqrt(sum(sol_values_ex) ^ 2)]);
         errors_implicit = cat(1, errors_implicit, [sqrt(sum(u_i - sol_values_im) ^ 2) / sqrt(sum(sol_values_im) ^ 2)]);
